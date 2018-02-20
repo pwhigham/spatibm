@@ -1,7 +1,9 @@
 #####################################################
 # Use igraph to draw family tree of model results
 #####################################################
-
+library(spatstat)
+library(raster)
+library(igraph)
 # Internal function
 single.mark.table <- function(sp)
 {

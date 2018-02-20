@@ -3,6 +3,8 @@
 #############################################
 # initial_pop.R
 ################################################################
+library(spatstat)
+library(raster)
 # Creating initial population and spatial description
 # To generate documentation:  devtools::document()
 ################################################################

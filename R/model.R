@@ -3,6 +3,7 @@
 #############################################
 # model.R
 #############
+library(spatstat)
 # Functions to do a single step or multiple steps of a population
 #
 ######################################################################

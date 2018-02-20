@@ -3,7 +3,7 @@
 #############################################
 # breeding.R
 #############
-
+library(spatstat)
 #' Define breeding parameters
 #' @description Breeding occurs between males and females who are spatially located
 #' near each other.  The probability of breeding depends on the age (which may be different

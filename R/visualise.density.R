@@ -4,7 +4,8 @@
 # Used to visualise the density patterns for a random population over
 # a fixed window size.  Useful when setting crowding parameters.
 #############
-
+library(spatstat)
+library(raster)
 ###############################################################################
 # Set window as 3x3 centred on origin.
 # Place the individual we are interested in at (0,0)

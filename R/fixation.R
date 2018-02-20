@@ -1,6 +1,8 @@
 #############################################
 # Spatial Individual-based Genetic Model
 #############################################
+library(spatstat)
+library(raster)
 # Simple example to model time to fixation of a neutral allele
 #
 #
