@@ -20,3 +20,5 @@ RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: http://github.com/pwhigham/spatibm
+BugReports: http://github.com/pwhigham/spatibm/issues
