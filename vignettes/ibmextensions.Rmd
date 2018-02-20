@@ -1,0 +1,96 @@
+---
+title: "Examples using spatibm"
+author: "Peter Whigham"
+#date: "Feb 22 2018"
+date: "`r Sys.Date()`"
+#output: rmarkdown::html_vignette
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Examples with spatibm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r, initenv,echo=FALSE}
+suppressWarnings(suppressMessages(suppressPackageStartupMessages({
+#
+#"
+#  
+library(spatstat)
+library(raster)
+library(igraph)
+source("../R/initial_pop.R")
+source("../R/movement.R")
+source("../R/survival.R")  
+source("../R/breeding.R")  
+source("../R/visualise.density.R")
+source("../R/habitat.R")
+source("../R/model.R")
+source("../R/summary.R")
+source("../R/fixation.R")
+})))
+
+```
+## Introduction
+
+This vignette covers some example approaches to using the <i>spatibm</i> package for exploring questions regarding allele fixation, population survival and size.
+
+
+## Modelling Fixation of a neutral allele
+
+Modelling of neutral alleles in a population allows a measure of inbreeding and loss of diversity.  For the <i>spatibm<\i> package this is influenced by the breeding, survival, fecundity and the structure of the habitat and spatial density of individuals.  A function has been provided that,given an initial population, runs a population until diversity is lost within the population, or a set number of generations has been reached.  Multiple runs of this function allow a confidence interval for fixation to be produced. The default definitions for movement, etc. provided with <i>create_ibm_population</i> will be used to simplify this description. A single rare allele with initial proportion 0.01 will be used to ensure fixation is reasonably quick.
+
+```{r,fixsetup,echol=TRUE}
+obs.win <- owin(xrange=c(-30,30),yrange=c(-30,30),unitname="metres")
+allele.prop <- 0.5  # Make rare allele
+pop <- create_ibm_population(N=20,
+                              spat.layout="random",
+                              obs.win,
+                              prob.females=0.5,
+                              age.distribution=c(10,3),
+                              allele.prop=allele.prop)  
+
+# Now expand the space
+#
+pop$window <- owin(xrange=c(-100,100), yrange=c(-100,100),unitname="metres")
+hab.surface <- as.im(circle.habitat,pop$window,b=0.0001)
+breed.table <- breeding.table() # default values
+survive.table <- survival.table() # default values
+move.table <- movement.table() # default values
+max.dist <- 10.0 # Breeding occurs for parents within 10 mtrs
+
+fixed <- fixation(max.gens=30,
+                  pop,
+                  move.table,
+                  survive.table,
+                  breed.table,
+                  habitat.surface=hab.surface, # stop overpopulation
+                  crowd.table=NA, # No density dependence for survival
+                  crowding.sigma=0.0,
+                  max.dist=max.dist,
+                  trace.output=TRUE)
+
+fixed
+```
+The result of a single call to <i>fixation</i> is a five element vector, showing True/False for fixation, the generation it occurred, the population count at the time of fixation, the number of males in the population, and the number of females.  This is required to distinguish fixation due to the loss of the population (population count = 0),halting because the maximum number of generations has been reached, and halting because there are no viable breeding pairs (i.e. loss of diversity of males/females). 
+
+
+
+## Modelling a bottleneck 
+
+
+## Determining the population size for survival
+
+
+
+
+
+
+

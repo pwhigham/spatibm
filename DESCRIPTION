@@ -1,0 +1,22 @@
+Package: spatibm
+Type: Package
+Title: A Spatial Individual-based model for land-based organisms
+Version: 0.0.0.9000
+Author: Peter A. Whigham
+Authors@R: person("Peter","Whigham",email="peter.whigham@otago.ac.nz",
+    role=c("aut","cre"))
+Maintainer: Peter A. Whigham <peter.whigham@otago.ac.nz>
+Description: This package uses a spatial description of a habitat and
+    the behaviour of an organism to track generational population structure.
+    The organisms are assumed to be diploid with male/female breeding pairs.  
+Imports:
+    spatstat (>= 1.0),
+    raster (>= 2.0),
+    igraph (>= 1.1)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
