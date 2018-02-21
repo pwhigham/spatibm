@@ -60,7 +60,7 @@ The initial population is created with a population size N, a spatial layout, an
 ```{r, initpopexample,echo=TRUE,fig.show='hold',fig.width=2.8,fig.height=2}
 
 obs.win <- owin(xrange=c(-10,10), yrange=c(-10,10),unitname="metres")
-curr.pop <- create_ibm_population(N=100,
+curr.pop <- create.ibm.population(N=100,
                                   spat.layout="random",
                                   obs.win=obs.win,
                                   prob.females=0.5,
@@ -164,7 +164,7 @@ b.table <- breeding.table(age.class,breed.always,
 max.dist <- Inf # Any distance ok
 
 # Make the population of 2 individuals
-pop2 <- create_ibm_population(N=2,
+pop2 <- create.ibm.population(N=2,
                               spat.layout="random",
                               obs.win,
                               prob.females=0.5,
@@ -231,7 +231,7 @@ The model is run by producing the initial population, the tables for breeding, s
 ```{r,mod1,echo=TRUE,fig.width=5.9,fig.height=3}
 # Create initial population
 obs.win <- owin(xrange=c(-10,10), yrange=c(-10,10),unitname="metres")
-curr.pop <- create_ibm_population(N=40,
+curr.pop <- create.ibm.population(N=40,
                                   spat.layout="random",
                                   obs.win=obs.win,
                                   prob.females=0.5,

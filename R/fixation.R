@@ -2,7 +2,7 @@
 # Spatial Individual-based Genetic Model
 #############################################
 library(spatstat)
-library(raster)
+
 # Simple example to model time to fixation of a neutral allele
 #
 #
@@ -74,8 +74,8 @@ allele.fixation <- function(pop)
 #' @param trace.output TRUE - write out generation details to console
 #' @return This function will complete when: (a) The alleles have fixed; (b) The maximum number
 #' of generations has been reached; or (c) The population has died out. To allow a simple
-#' method for distinguishing each of these cases, the model returns a 3 element vector: <TRUE/FALSE fixed>,
-#' <generation>, <Final Population Count>.
+#' method for distinguishing each of these cases, the model returns a 6 element numeric vector: <TRUE/FALSE fixed>,
+#' <generation>, <Final Population Count>, <Last Allele Sum> <#Males>,<#Females>.
 
 fixation <- function(max.gens=100,
                              curr.pop,
@@ -112,7 +112,7 @@ fixation <- function(max.gens=100,
 		  cat(paste("Gen:",gen," N=",curr.pop$n," A:",sum(alleles),"..",sep=""))
 		  flush.console();
 		}
-		if (trace.output) if ((gen %% 5)==0) cat("\n")
+		if (trace.output) if ((gen %% 3)==0) cat("\n")
 
 		fixed <- allele.fixation(curr.pop)
 		if ((curr.pop$n==0) | (gen > max.gens) | fixed) break  # Done
@@ -121,6 +121,99 @@ fixation <- function(max.gens=100,
 	}
 	alleles <- unlist(curr.pop$marks[,(ncol(curr.pop$marks)-1):ncol(curr.pop$marks)])
 
-	c(fixed,gen,curr.pop$n,length(which(curr.pop$marks$sex==1)),
+	c(fixed,gen,curr.pop$n, sum(alleles), length(which(curr.pop$marks$sex==1)),
 	  length(which(curr.pop$marks$sex==2)))
+}
+#' What population size is viable?
+#' @description For a given set of population parameters, run the model for a range
+#' of population sizes and maximum steps (for a number of samples).  Return the initial and
+#' final population size, and the number of steps (in case the final population size is zero).
+#' This can be used to examine the probability of survival based on initial population size.
+#' @param pop.sizes Vector of population sizes to be run
+#' @param steps Maximum number of steps (generations)
+#' @param samples Number of times to repeat model for a given population size
+#' @param spat.layout String to select layout options.  Currently only
+#'                     "random" is implemented.
+#' @param obs.owin  Observation window that defines the boundaries of the space where
+#'                  individuals are placed.
+#' @param prob.females  Probability of females in population (0 - 1)
+#' @param age.distribution The age distribution for the population.  Drawn from
+#'                        a normal distribution c(mean, sd) Age must be >= 1.
+#'                        Generated age is an integer. Separate age distribution properties may be
+#'                        given for females by setting age.distribution to a four value vector, in which case
+#'                        age distribution is c(male.mean, male.sd, female.mean,female.sd)
+#' @param allele.prop  Proportion of allele Ai per ith loci for the population.
+#'                     Well mixed = 0.5, converged = 1.0 (or 0.0)
+#'                     Alleles are stored in the data frame as a vector of size 2 * number loci.
+#'                     This is done to make the breeding cycle easier when it is modelled.
+#'                     For example, with 2 alleles would be represented as (A1,B1,A2,B2) where A1 and A2
+#'                     are the values on the 2 loci first strand, B1 B2 matching loci on second strand.
+#' @param habitat.win The final habitat window
+#' @param move.table Movement table as defined by \code{movement.table}.
+#' @param survive.table Survival table as defined by \code{survival.table}.
+#' @param breed.table Breeding table as defined by \code{breeding.table}
+#' @param habitat.surface The habitat (probability) surface. See \code{circle.habitat} for an example, although
+#' this surface could be produced in many ways.  The only requirement is that it must cover the entire window
+#' associated with the population.
+#' @param crowd.table The crowding table as defined by \code{crowding.table}
+#' @param crowding.sigma Bandwidth used for density calculation for crowding
+#' @param max.dist Maximum distance between breeding parents
+#' @param trace.output TRUE - print out each run information, FALSE quiet
+#' @return A dataframe with 2 columns: N, finalN representing
+#' the initial population size and final population size
+popsize.survival <- function(pop.sizes=10:20,steps=20,samples=2,
+                             spat.layout="random",
+                             obs.win,
+                             prob.females=0.5, # Initial pop parameters
+                             age.distribution=c(5,3),
+                             allele.prop=c(0.5),
+                             habitat.win,
+                             move.table,
+                             survive.table,  # Behaviour parameters
+                             breed.table,
+                             habitat.surface,
+                             crowd.table,
+                             crowding.sigma,
+                             max.dist,
+                             trace.output=FALSE
+                             )
+{
+  res <- matrix(nrow=(samples*length(pop.sizes)),ncol=2)
+  index <- 1
+  for (N in pop.sizes)
+  {
+    for (s in 1:samples)
+    {
+      if (trace.output) print(paste("N:",N,"Run:",s))
+
+      pop <- create.ibm.population(N,
+                                   spat.layout=spat.layout,
+                                   obs.win=obs.win,
+                                   prob.females,
+                                   age.distribution,
+                                   allele.prop)
+      ##############################################################################
+      # and now adjust the window to the habitat
+      #
+      pop$window <- habitat.win
+      #
+      # And run the model for 40 steps (41 including initial population)
+      #
+      pop.series <- multiple.step(steps,
+                                  curr.pop=pop,
+                                  move.table,
+                                  survive.table,
+                                  breed.table,
+                                  habitat.surface,
+                                  crowd.table,
+                                  crowding.sigma=crowding.sigma,
+                                  max.dist,
+                                  track.ids=FALSE,
+                                  trace.output=FALSE)
+      res[index,] <- c(pop.series[[1]]$n,pop.series[[(steps+1)]]$n)
+      index <- index + 1
+    }
+  }
+  colnames(res) <- c("N","finalN")
+  as.data.frame(res)
 }

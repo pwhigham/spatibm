@@ -4,6 +4,7 @@
 # movement.R
 #############
 library(spatstat)
+library(raster)
 ####################################################################
 # Operations to move individuals within a timestep
 ####################################################################

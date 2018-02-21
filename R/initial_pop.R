@@ -4,7 +4,7 @@
 # initial_pop.R
 ################################################################
 library(spatstat)
-library(raster)
+
 # Creating initial population and spatial description
 # To generate documentation:  devtools::document()
 ################################################################
@@ -31,7 +31,7 @@ make_rpois_num <- function(N,owin)
 }
 
 ########################################################################################################
-# create_ibm_population
+# create.ibm.population
 #' Create an initial population
 #' @description Create an initial population by defining a release window, spatial layout, female/male distribution,
 #' age distribution and allele proportions for each loci
@@ -59,10 +59,10 @@ make_rpois_num <- function(N,owin)
 #'
 #' @examples
 #' # Create the default population and plot using plot.ppp
-#' curr.pop <- create_ibm_population()
+#' curr.pop <- create.ibm.population()
 #' plot(curr.pop,use.marks=F,main="Initial Pop")
 
-create_ibm_population <- function(N=50,
+create.ibm.population <- function(N=50,
                                   spat.layout="random",
 					                        obs.win=owin(xrange=c(-10,10),
 					                                     yrange=c(-10,10),unitname="metre"),
