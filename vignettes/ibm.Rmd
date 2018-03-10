@@ -224,6 +224,19 @@ plot(hab.surface,main="")
 
 ```
 
+Sometimes you may want to examine several nearby good habitats that are separated by poorer habitat.  The following example produces 3 locations that have good habitat (assumed to be the base level of 1.0), with the surrounding regions having a value of 0.7.  
+
+
+```{r,hab2,echo=TRUE,fig.width=6,fig.height=2.2}
+par(mar=c(1,1,2,1.5)) 
+hab.win <- owin(c(-50,50),c(-50,50),unitname="metres")
+hab.surface <- circle.pts.density(x=c(-20,0,20),y=c(-20,0,20),hab.win,
+                                  sigma=10,min.d=0.7)
+plot(hab.surface,main="")
+
+```
+
+
 ## Putting it together
 
 The model is run by producing the initial population, the tables for breeding, survival and crowding and the habitat surface.  Breeding and survival must be defined while crowding behaviour and the habitat surface are optional.  

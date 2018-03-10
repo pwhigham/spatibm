@@ -30,6 +30,39 @@ circle.habitat <- function(x,y,b)
 	d <- x^2 + y^2
 	exp(-b*d)
 }
+#' Define a set of circular point habitats
+#' @description Define a habitat locations within a window using a density
+#' function.  The maximum value is 1, and the minimum value in the habitat is
+#' set by the argument min.d.
+#'@param x x coordinates defining the point locations
+#'@param y y coordinates of point locations
+#'@param hab.win The habitat window as an owin object
+#'@param sigma Density function argument.  Larger values produce greater spread
+#'@param min.d Minimum value of final habitat map.
+#'@return Habitat value for each location as an im object (\code{\link[spatstat]{as.im}}).
+#' This can be used as the habitat window in spatibm.
+#'@examples
+#' # Example habitat with 3 good habitat locations.
+#' # hab.win is the habitat window.  Minimum value is 0.7
+#' hab.win <- owin(c(-50,50),c(-50,50),unitname="metres")
+#' Use 3 point locations within the -50x50 window
+#' x = c(-20,0,20)
+#' y = c(-20,0,20)
+#' # Note that Z is type im.
+#' Z <- circle.pts.density(x,y,hab.win,sigma=5,min.d=0.7)
+#' plot(Z)
+#'
+circle.pts.density <- function(x,y,hab.win,sigma=1.0,min.d=0.7)
+{
+  p <- ppp(x=x,y=y,window=hab.win)
+  p.d <- density(p,sigma=sigma)
+  pmax <- max(p.d)
+  pmin <- min(p.d)
+  p.d <- ((p.d-pmin)/(pmax-pmin))  # normalise between 0 - 1
+  pdm <- as.matrix(p.d)
+  pdm[which(pdm < min.d)] <- min.d # set minimum value
+  as.im(pdm,W=hab.win)
+}
 
 #' Define a circular habitat with constant value
 #'@description Create a circular habitat with a value of \code{inside} within a defined distance
