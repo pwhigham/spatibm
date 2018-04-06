@@ -4,7 +4,7 @@
 \alias{fixation}
 \title{Time to fixation for an spatial individual-based model}
 \usage{
-fixation(max.gens = 100, curr.pop, move.table, survive.table, breed.table,
+fixation(max.gens = 200, curr.pop, move.table, survive.table, breed.table,
   habitat.surface = NA, crowd.table = NA, crowding.sigma = 0,
   max.dist = 5, trace.output = FALSE)
 }
@@ -36,6 +36,7 @@ This function will complete when: (a) The alleles have fixed; (b) The maximum nu
 of generations has been reached; or (c) The population has died out. To allow a simple
 method for distinguishing each of these cases, the model returns a 6 element numeric vector: <TRUE/FALSE fixed>,
 <generation>, <Final Population Count>, <Allele Sum> <#Males>,<#Females>.
+Note that fixation needs to be run many times for a good mean/variance estimate.
 }
 \description{
 A simple example of using the \code{single.step} function

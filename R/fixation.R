@@ -74,8 +74,9 @@ allele.fixation <- function(pop)
 #' of generations has been reached; or (c) The population has died out. To allow a simple
 #' method for distinguishing each of these cases, the model returns a 6 element numeric vector: <TRUE/FALSE fixed>,
 #' <generation>, <Final Population Count>, <Allele Sum> <#Males>,<#Females>.
+#' Note that fixation needs to be run many times for a good mean/variance estimate.
 
-fixation <- function(max.gens=100,
+fixation <- function(max.gens=200,
                              curr.pop,
                              move.table,
                              survive.table,
