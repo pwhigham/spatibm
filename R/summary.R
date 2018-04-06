@@ -104,7 +104,7 @@ pop.summary <- function(pop,gen,sigma=1.0)
 #' a model (see \code{multiple.step}), create a summary table, one row per generation.
 #' @param p.list A list of point populations (.ppp)
 #' @param sigma Bandwidth used for calculating density for each generation
-#' @file.csv A file name as a string or NA.  If not NA, then a csv file using
+#' @param file.csv A file name as a string or NA.  If not NA, then a csv file using
 #' this name is created.
 #' @return A dataframe, one row per generation, showing summary statistics for the population.
 #' @examples

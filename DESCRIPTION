@@ -1,7 +1,7 @@
 Package: spatibm
 Type: Package
 Title: A Spatial Individual-based model for land-based organisms
-Version: 0.0.0.9000
+Version: 0.0.1
 Author: Peter A. Whigham
 Authors@R: person("Peter","Whigham",email="peter.whigham@otago.ac.nz",
     role=c("aut","cre"))

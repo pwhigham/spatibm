@@ -48,9 +48,7 @@ allele.fixation <- function(pop)
 
   sum.alleles <- sum(unlist(pop$marks[,6:ncol(pop$marks)]))
 	if (sum.alleles==(2*pop$n*(ncol(pop$marks)-5)/2)) return(TRUE)  # all 1's
-	if (sum.alleles==0) return(TRUE)  # all 0's
-
-	FALSE  # mixed
+	(sum.alleles==0) # either TRUE and fixed, or False and not fixed.
 }
 
 #' Time to fixation for an spatial individual-based model
@@ -108,7 +106,7 @@ fixation <- function(max.gens=100,
 		                        max.dist)
 		if (trace.output)
 		{
-		  alleles <- unlist(curr.pop$marks[,(ncol(curr.pop$marks)-1):ncol(curr.pop$marks)])
+		  alleles <- unlist(curr.pop$marks[,6:ncol(curr.pop$marks)])
 		  cat(paste("Gen:",gen," N=",curr.pop$n," A:",sum(alleles),"..",sep=""))
 		  flush.console();
 		}
