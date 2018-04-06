@@ -140,7 +140,7 @@ Breeding occurs between a single male and female who are within a defined distan
 # The breed.table and max.dist variable will be used in the model
 #
 mf.age.class <- c(5,40,Inf) # Same description for males and females
-mf.breed <- list(0,0.95,0.1)
+mf.breed <- c(0,0.95,0.1)
 breed.table <- breeding.table(mf.age.class,mf.breed,
                               mf.age.class,mf.breed,
                               fecund=c(5,2), # Mean 5 children
@@ -156,7 +156,7 @@ The following code shows the behaviour of placement of children.  Here we define
 # The breed.table and max.dist variable will be used in the model
 #
 age.class <- Inf # For all ages
-breed.always <- list(1) # Definitely breed
+breed.always <- 1 # Definitely breed
 b.table <- breeding.table(age.class,breed.always,
                           age.class,breed.always,
                           fecund=c(10,0), # Make 10 children
@@ -224,15 +224,15 @@ plot(hab.surface,main="")
 
 ```
 
-Sometimes you may want to examine several nearby good habitats that are separated by poorer habitat.  The following example produces 3 locations that have good habitat (assumed to be the base level of 1.0), with the surrounding regions having a value of 0.7.  
+Sometimes you may want to examine several nearby good habitats that are separated by poorer habitat.  The following example produces 3 locations that have good habitat (assumed to be the base level of 1.0), with the surrounding regions having a value of 0.7.  Note the sigma and edge arguments passed to the density function.
 
 
 ```{r,hab2,echo=TRUE,fig.width=6,fig.height=2.2}
 par(mar=c(1,1,2,1.5)) 
 hab.win <- owin(c(-50,50),c(-50,50),unitname="metres")
-hab.surface <- circle.pts.density(x=c(-20,0,20),y=c(-20,0,20),hab.win,
-                                  sigma=10,min.d=0.7)
-plot(hab.surface,main="")
+hab.pts.surface <- circle.pts.density(x=c(-20,0,20),y=c(-20,0,20),hab.win,
+                                  min.d=0.7,sigma=10,edge=FALSE)
+plot(hab.pts.surface,main="")
 
 ```
 
@@ -254,19 +254,19 @@ curr.pop <- create.ibm.population(N=40,
 curr.pop$window <- owin(xrange=c(-50,50),yrange=c(-50,50),unitname="metres")
 
 # Define movement: same for males/females
-age.class <- c(5,40,Inf)  # Most active between ages 5 - 40
+age.class <- c(5,40,Inf)  # Most active between ages >5 and <=40
 move.all <- list(c(1,0.1),c(6,2),c(2,3))
 m.table <- movement.table(age.class,move.all,age.class,move.all)
 
 # Define survival: same for males/females
 mf.age.class <- c(5,40,Inf) # Same description for males and females
-mf.survive <- list(0.75,0.95,0.1) # Survive difficult to 5, then ok
-survive.table <- survival.table(mf.age.class,mf.survive,mf.age.class,mf.survive)
+mf.survive <- c(0.75,0.95,0.1) # Survive difficult to 5, then ok
+s.table <- survival.table(mf.age.class,mf.survive,mf.age.class,mf.survive)
 
 # Define breeding behaviour
 
 age.class <- c(5,40,Inf) # 
-breed.probs <- list(0.0,0.8,0.01) # No breeding till 5
+breed.probs <- c(0.0,0.8,0.01) # No breeding till >5 and <=40
 b.table <- breeding.table(age.class,breed.probs,
                           age.class,breed.probs,
                           fecund=c(10,2), # Make about 10 children
@@ -280,12 +280,12 @@ model.run <- multiple.step(
                   steps=20,
 						      curr.pop,
 						      move.table=m.table,
-						      survive.table=survive.table,
+						      survive.table=s.table,
 						      breed.table,
-						      habitat.surface=hab.surface, # circular habitat defined earlier
+						      habitat.surface=hab.surface, # habitat defined earlier
 						      crowd.table=NA,  # No crowding 
 						      crowding.sigma=0.0,
-						      max.dist=5.0, # Breeding maximum distance
+						      max.dist=max.dist, # Breeding maximum distance
 						      track.ids=FALSE,
 						      trace.output=TRUE)
 plot.pop.count(model.run)

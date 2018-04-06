@@ -88,12 +88,12 @@ create.ibm.population <- function(N=50,
   }
 	age[age<=0] <- 1  # make sure age at least 1
     # ALLELES
-	alleles <- as.data.frame(matrix(nrow=N,ncol=2*length(allele.prop),data=0))
+	alleles <- as.data.frame(matrix(nrow=N,ncol=2*length(allele.prop),data=1))
 	index <- 1
 	for (p in allele.prop)
 	{
-		alleles[(runif(N) < p),index] <- 1
-		alleles[(runif(N) < p),(index+1)] <- 1
+		alleles[(runif(N) < p),index] <- 0
+		alleles[(runif(N) < p),(index+1)] <- 0
 		index <- index + 2
 	}
 	pop_data <- as.data.frame(cbind(id,sex,age,f,m,alleles))  # LOSES sex as a factor ????

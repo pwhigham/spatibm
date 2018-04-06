@@ -5,7 +5,8 @@
 \title{Time to fixation for an spatial individual-based model}
 \usage{
 fixation(max.gens = 100, curr.pop, move.table, survive.table, breed.table,
-  habitat.surface, crowd.table, crowding.sigma = 1, max.dist = 5)
+  habitat.surface = NA, crowd.table = NA, crowding.sigma = 0,
+  max.dist = 5, trace.output = FALSE)
 }
 \arguments{
 \item{max.gens}{Maximum number of generations before the simulation halts.}
@@ -27,12 +28,14 @@ associated with the population.}
 \item{crowding.sigma}{Bandwidth used for density calculation for crowding}
 
 \item{max.dist}{Maximum distance between breeding parents}
+
+\item{trace.output}{TRUE - write out generation details to console}
 }
 \value{
 This function will complete when: (a) The alleles have fixed; (b) The maximum number
 of generations has been reached; or (c) The population has died out. To allow a simple
-method for distinguishing each of these cases, the model returns a 3 element vector: <TRUE/FALSE fixed>,
-<generation>, <Final Population Count>.
+method for distinguishing each of these cases, the model returns a 6 element numeric vector: <TRUE/FALSE fixed>,
+<generation>, <Final Population Count>, <Allele Sum> <#Males>,<#Females>.
 }
 \description{
 A simple example of using the \code{single.step} function

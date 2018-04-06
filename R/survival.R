@@ -13,33 +13,27 @@ library(raster)
 #' @description Define the survival parameters for each age class of males and females.  Some simple
 #' checking of parameters is done to ensure the correct number of parameters are given for the
 #' number of age classes.  Note that survival is measured as a probability (although possibly modified by the habitat).
-#' @param m.age.class A vector that defines each male age class. These are interpreted
-#' as less than or equal values. The first value assumes an age from zero to the defined value.
-#' @param m.survive A list of probabilities of survival,  one for each age class
+#' @param m.age.class A vector that defines each male age class.
+#' An interval (lower,upper) is interpreted as lower <= V <= upper. The first value is assumed
+#' to have a lower bound of zero.
+#' @param m.survive A vector of probabilities of survival,  one for each age class
 #' @param f.age.class A vector that defines each female age class.
-#' @param f.survive A list of probabilities, one for each female age class.
+#' @param f.survive A vector of probabilities, one for each female age class.
 #' @return The survival table. This is passed to the function \code{baseline.survival}.
 survival.table <- function(m.age.class=c(5,40,Inf),
-						   m.survive=list(0.8,0.8,0.1),
+						   m.survive=c(0.8,0.8,0.1),
 						   f.age.class=c(3,40,Inf),
-						   f.survive=list(0.8,0.9,0.1)
+						   f.survive=c(0.8,0.9,0.1)
 						   )
 {
 	# Check that age classes correct length for movement params.
 	if (length(m.age.class) != length(m.survive)) stop("Male age class mismatch with survival params")
 	if (length(f.age.class) != length(f.survive)) stop("Female age class mismatch with survival params")
-	if (length(which(unlist(lapply(m.survive,length))!=1))!=0)
-	{
-		stop("Male survival parameters incorrectly specified - needs 1 per age class")
-	}
-	if (length(which(unlist(lapply(f.survive,length))!=1))!=0)
-	{
-		stop("Female survival parameters incorrectly specified - needs 1 per age class")
-	}
-	# Seem ok - although we haven't checked values make any sense!
 
-	list(m.age.class,m.survive,
-		 f.age.class,f.survive)
+  # Seem ok - although we haven't checked values make any sense!
+
+	list(c(0,m.age.class),m.survive,
+		 c(0,f.age.class),f.survive)
 }
 
 #' Baseline survival for individuals
@@ -50,39 +44,39 @@ survival.table <- function(m.age.class=c(5,40,Inf),
 #' @param habitat The habitat surface representing the probability of survival at any location.
 #' @return The surviving population as a .ppp
 #'
-##############################################################################
-# baseline survival
-#
-# IN: ind, survival.table, habitat image
-# OP: Calculate initial survival due to baseline probability and
-#     habitat.
-# OUT: The surviving population
-##############################################################################
 
-baseline.survival <- function(p,s.table,habitat)
+baseline.survival <- function(p,s.table,habitat=NA)
 {
 	if (p$n==0) return(p)
 
 	age.surv <- vector(mode="double",length=p$n)
-	for (i in 1:p$n) # for each individual
+
+	males <- which(p$marks$sex==1)
+	females <- which(p$marks$sex==2)
+
+	if (length(males) > 0)
 	{
-		list.index <- ifelse(p[i]$marks[2]==1,1,3)  # index into m.table
-		s.p <- s.table[[(list.index+1)]] # survival parameters
-		s.index <- which(as.numeric(p[i]$marks[3]) <= s.table[[list.index]])[1]	 # Check others for errors!!!
-		age.surv[i] <- s.p[[s.index]][1]
+	  i <- cut(p$marks$age[males],breaks=s.table[[1]],include.lowest=TRUE)
+	  age.surv[males] <- s.table[[2]][i]
 	}
-	# and now do the habitat surface
+	if (length(females) > 0)
+	{
+	  i <- cut(p$marks$age[females],breaks=s.table[[3]],include.lowest=TRUE)
+	  age.surv[females] <- s.table[[4]][i]
+	}
+
+		# and now do the habitat surface
 	if (length(habitat) < 2)
 	{
-		hab.prob <- rep(1,p$n)
+	  final.prob <- age.surv
 	}
 	else
 	{
 		hab.prob <- raster(habitat)[cellFromXY(raster(habitat),cbind(p$x,p$y))] # Adjust x,y for raster model
+		final.prob <- age.surv*hab.prob
 	}
-	final.prob <- age.surv*hab.prob
-	retain <- (runif(p$n) < final.prob)
-	p[retain]
+
+	p[(runif(p$n) < final.prob),]
 }
 
 # Plot one of male/female
@@ -115,7 +109,7 @@ plot.ct <- function(m.t,main="Males",...)
 	}
 	if (length(big) > 0) abline(v=(max.age+1),lty=2,lwd=0.5,col='grey')
 }
-
+#########################################################################
 #' Plot the crowding table
 #' @description Graphically show the crowding table as a plot of age versus crowding density.  The probability
 #' of survival based on density is shown by value and size of symbol.

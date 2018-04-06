@@ -44,8 +44,8 @@ movement.table <- function(m.age.class=c(5,10,Inf),
 	}
 	# Seem ok - although no check that values are valid
 
-	list(m.age.class,m.move,
-		 f.age.class,f.move)
+	list(c(0,m.age.class),m.move,
+		 c(0,f.age.class),f.move)
 }
 #' Move the individuals in the population using the defined movement table.
 #' @description Moving individuals in the population across space assumes that there is
@@ -61,36 +61,37 @@ move <- function(p,m.table)
 {
 	if (p$n == 0) return(p)
 
-	means <- vector(mode="double",length=p$n)
-	sds <- vector(mode="double",length=p$n)
+	moves <- matrix(nrow=p$n,ncol=2) # Collect up mean/sd movement params
+  males <- which(p$marks$sex==1)
+  females <- which(p$marks$sex==2)
 
-	for (i in 1:p$n)
+	if (length(males) > 0)
 	{
-		list.index <- ifelse(p[i]$marks[2]==1,1,3)  # index into table based on sex
-		a.c <- m.table[[list.index]] # age classes
-		m.p <- m.table[[(list.index+1)]] # movement parameters
-		m.index <- which(as.numeric(p[i]$marks[3]) <= a.c)[1] # age
-		means[i] <- m.p[[m.index]][1]
-		sds[i] <- m.p[[m.index]][2]
+	  i <- cut(p$marks$age[males],breaks=m.table[[1]],include.lowest=TRUE)
+    moves[males,] <- matrix(ncol=2,data=unlist(m.table[[2]][i]),byrow=T)
+	}
+	if (length(females) > 0)
+	{
+	  i <- cut(p$marks$age[females],breaks=m.table[[3]],include.lowest=TRUE)
+	  moves[females,] <- matrix(ncol=2,data=unlist(m.table[[4]][i]),byrow=T)
 	}
 
-	d <- abs(rnorm(p$n,means,sds))
+	d <- abs(rnorm(p$n,moves[,1],moves[,2]))
 
-	# d <- abs(rnorm(1,m.p[[m.index]][1],m.p[[m.index]][2]))
 	# and now place this randomly in the circle around x at
 	# distance d
+
 	rn <- matrix(ncol=2,data=rnorm(2*p$n,mean=0,sd=1))
 	mag <- sqrt(apply(rn,1,function(x) sum(x^2)))
-	offset <- (rn/mag*d) # offset for each point
-
-	#as.numeric(ind[1:2]) + (rn/mag * d)  # scale to sphere radius
+	offset <- ((rn/mag)*d) # offset for each point
 
 	p$x <- p$x + offset[,1]
 	p$y <- p$y + offset[,2]
 
-	#p  - used to just return, but no guarantee that the points lie within the window.
 	#
 	# Construct a new ppp
+	# but no guarantee that the points lie within the window.
+
 	ppp(p$x,p$y,window=p$win,marks=p$marks)  # return the updated points
 }
 

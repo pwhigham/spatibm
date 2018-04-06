@@ -4,7 +4,7 @@
 \alias{baseline.survival}
 \title{Baseline survival for individuals}
 \usage{
-baseline.survival(p, s.table, habitat)
+baseline.survival(p, s.table, habitat = NA)
 }
 \arguments{
 \item{p}{The current population}

@@ -4,19 +4,21 @@
 \alias{breeding.table}
 \title{Define breeding parameters}
 \usage{
-breeding.table(m.age.class = c(5, 40, Inf), m.breed = list(0, 0.8, 0.1),
-  f.age.class = c(6, 40, Inf), f.breed = list(0.8, 0.9, 0.1),
-  fecund = c(5, 2), displace = c(3, 0.5))
+breeding.table(m.age.class = c(5, 40, Inf), m.breed = c(0, 0.8, 0.1),
+  f.age.class = c(6, 40, Inf), f.breed = c(0.8, 0.9, 0.1), fecund = c(5,
+  2), displace = c(3, 0.5))
 }
 \arguments{
 \item{m.age.class}{A vector that defines the values for each male age threshold. These are interpreted
-as less than or equal values. The first value assumes an age from zero to the defined value.}
+as less than or equal values. The last value should
+be Inf.  An interval (lower,upper) is interpreted as lower <= V <= upper.  The
+first value is assumed to be the upper value for a range (0,upper).}
 
-\item{m.breed}{A list of probabilities of breeding, one for each male age class}
+\item{m.breed}{A vector of probabilities of breeding, one for each male age class}
 
 \item{f.age.class}{A vector that defines each female age class.}
 
-\item{f.breed}{A list of probabilities of breeding, one for each female age class}
+\item{f.breed}{A vector of probabilities of breeding, one for each female age class}
 
 \item{fecund}{Number of children created if breeding occurs. Defined as two value vector
 N(m,sd) drawn from a normal distribution.  Values always >= 0.}

@@ -49,7 +49,7 @@ Modelling of neutral alleles in a population allows a measure of inbreeding and 
 
 ```{r,fixsetup,echol=TRUE}
 obs.win <- owin(xrange=c(-30,30),yrange=c(-30,30),unitname="metres")
-allele.prop <- 0.5  # Make rare allele
+allele.prop <- 0.05  # Make one rare allele (one locus, 2 alleles)
 pop <- create.ibm.population(N=20,
                               spat.layout="random",
                               obs.win,
@@ -79,7 +79,7 @@ fixed <- fixation(max.gens=30,
 
 fixed
 ```
-The result of a single call to <i>fixation</i> is a six element vector, showing True/False for fixation, the generation it occurred, the population count at the time of fixation, the sum of alleles (for the final locus), the number of males in the population, and the number of females.  This is required to distinguish fixation due to the loss of the population (population count = 0),halting because the maximum number of generations has been reached, and halting because there are no viable breeding pairs (i.e. loss of diversity of males/females). Note that the sum of alleles is a measure of the remaining diversity if the population has not fixed. Probability of fixation requires this model to be run repeatedly, and with max.gens set typically quite high, and normally for a range of population sizes.  This is best done as a script run (probably) overnight, and saving the results to a file each time the model is run.
+The result of a single call to <i>fixation</i> is a six element vector, showing True/False for fixation, the generation it occurred, the population count at the time of fixation, the sum of alleles, the number of males in the population, and the number of females.  This is required to distinguish fixation due to the loss of the population (population count = 0),halting because the maximum number of generations has been reached, and halting because there are no viable breeding pairs (i.e. loss of diversity of males/females). Note that the sum of alleles is a measure of the remaining diversity if the population has not fixed. For a fixed population this will either be zero (all loci fixed at zero), or [num of loci*popsize] when all loci are fixed at one. Probability of fixation requires this model to be run repeatedly, and with max.gens set typically quite high; normally for a range of population sizes.  This is best done as a script run (probably) overnight, and saving the results to a file each time the model is run.
 
 
 ## Modelling a bottleneck 
@@ -128,7 +128,7 @@ An important question to ask is what is a viable intial population size? One way
 
 ```{r,popviable,echol=TRUE,fig.width=6.0,fig.height=3}
 
-surv <- popsize.survival(pop.sizes=10:30,steps=20,samples=50,
+surv <- popsize.survival(pop.sizes=10:30,steps=20,samples=10,
                              spat.layout="random",
                              obs.win,
                              prob.females=0.5, # Initial pop parameters

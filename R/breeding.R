@@ -12,10 +12,12 @@ library(spatstat)
 #' distribution.  Children are randomly placed around the mid-point between parents.
 #'
 #' @param m.age.class A vector that defines the values for each male age threshold. These are interpreted
-#' as less than or equal values. The first value assumes an age from zero to the defined value.
-#' @param m.breed A list of probabilities of breeding, one for each male age class
+#' as less than or equal values. The last value should
+#' be Inf.  An interval (lower,upper) is interpreted as lower <= V <= upper.  The
+#' first value is assumed to be the upper value for a range (0,upper).
+#' @param m.breed A vector of probabilities of breeding, one for each male age class
 #' @param f.age.class A vector that defines each female age class.
-#' @param f.breed A list of probabilities of breeding, one for each female age class
+#' @param f.breed A vector of probabilities of breeding, one for each female age class
 #'@param fecund Number of children created if breeding occurs. Defined as two value vector
 #'N(m,sd) drawn from a normal distribution.  Values always >= 0.
 #'@param displace Displacement of children drawn from normal distribution around the mid-point in space
@@ -27,9 +29,9 @@ library(spatstat)
 # Defining baseline breeding parameters based on age class
 ###################################################################
 breeding.table <- function(m.age.class=c(5,40,Inf),
-                           m.breed=list(0.0,0.8,0.1),
+                           m.breed=c(0.0,0.8,0.1),
                            f.age.class=c(6,40,Inf),
-                           f.breed=list(0.8,0.9,0.1),
+                           f.breed=c(0.8,0.9,0.1),
                            fecund=c(5,2),  # Number of childer as N(m,sd)
                            displace=c(3,0.5) # Displacement from mid-point of parents as N(m,sd)
                            )
@@ -37,18 +39,11 @@ breeding.table <- function(m.age.class=c(5,40,Inf),
 	# Check that age classes correct length for movement params.
 	if (length(m.age.class) != length(m.breed)) stop("Male age class mismatch with breeding params")
 	if (length(f.age.class) != length(f.breed)) stop("Female age class mismatch with breeding params")
-	if (length(which(unlist(lapply(m.breed,length))!=1))!=0)
-	{
-		stop("Male breeding probability incorrectly specified - needs 1 per age class")
-	}
-	if (length(which(unlist(lapply(f.breed,length))!=1))!=0)
-	{
-		stop("Female breeding probability incorrectly specified - needs 1 per age class")
-	}
-	# Seem ok - although we haven't checked values make any sense!
 
-	list(m.age.class,m.breed,
-		 f.age.class,f.breed,
+  	# Seem ok - although we haven't checked values make any sense!
+
+	list(c(0,m.age.class),m.breed,
+		 c(0,f.age.class),f.breed,
 		 fecund,displace)
 }
 #' Create population available for breeding
@@ -64,14 +59,19 @@ baseline.breeding <- function(p,b.table)
 	# For each individual, determine if they can breed
 	#
 	breed.surv <- vector(mode="double",length=p$n)
-	for (i in 1:p$n)
+
+	males <- which(p$marks$sex==1)
+	females <- which(p$marks$sex==2)
+
+	if (length(males) > 0)
 	{
-		list.index <- ifelse(p[i]$marks[2]==1,1,3)  # index into m.table
-		a.c <- b.table[[list.index]] # age classes
-		s.p <- b.table[[(list.index+1)]] # breeding prob.
-		s.index <- which(as.numeric(p[i]$marks[3]) <= a.c)[1]
-	# Baseline age breeding probability = s.p[[s.index]][1]
-		breed.surv[i] <- (s.p[[s.index]])[1]  # Breeding probability
+    i <- cut(p$marks$age[males],breaks=b.table[[1]],include.lowest=TRUE)
+    breed.surv[males] <- b.table[[2]][i]
+	}
+	if (length(females) > 0)
+	{
+	  i <- cut(p$marks$age[females],breaks=b.table[[3]],include.lowest=TRUE)
+	  breed.surv[females] <- b.table[[4]][i]
 	}
 	p[(runif(p$n) < breed.surv),]
 }
@@ -140,35 +140,29 @@ do.breeding <- function(x,pts,fecund,displace)
 
 	res <- matrix(nrow=num.children,ncol=(ncol(pts$marks)+2))
 	colnames(res) <- c("x","y",colnames(pts$marks))
-	while(num.children > 0)
-	{
-		res[num.children,4] <- ifelse(runif(1) > 0.5,1,2) # sex
-		rn <- (rnorm(2,mean=0,sd=1))
-		mag <- sqrt(sum(rn^2))
-		d <- abs(rnorm(1,mean=displace[1],sd=displace[2]))
-		res[num.children,1:2] <- xy + (rn/mag * d)  # Position
 
-		res[num.children,6] <- pts$marks[x[1],1]
-		res[num.children,7] <- pts$marks[x[2],1]
 
-		#########################################
-		# MENDELIAN Inheritance for diploid
-		#########################################
 
-		# Randomly select an allele at each loci from each parent to form the
-		# child alleles.
-		last <- 7 # second slot, first allele
-		alleles <- NULL
-		while (last <= ncol(pts$marks))
-		{
-			p1 <- pts$marks[x[1],(last-1):last]
-			p2 <- pts$marks[x[2],(last-1):last]
-			alleles <- c(alleles,c(sample(p1,1),sample(p2,1)))
-			last <- last+2
-		}
-		res[num.children,8:ncol(res)] <- as.numeric(alleles)
-		num.children <- num.children-1
-	}
+	res[,4] <- ifelse(runif(num.children) > 0.5,1,2)
+	rn <- matrix(ncol=2,data=rnorm(2*num.children,0,1)^2)
+	mag <- sqrt(rowSums(rn))
+	d <- abs(rnorm(num.children,displace[1],displace[2]))
+	res[,1:2] <- matrix(ncol=2,data=(xy + (rn/mag * d)),byrow=TRUE)
+	res[,6] <- pts$marks[x[1],1]
+	res[,7] <- pts$marks[x[2],1]
+
+	#########################################
+	# MENDELIAN Inheritance for diploid
+	#########################################
+
+	# Make combined table of parent alleles
+	palleles <- cbind(as.numeric(pts$marks[x[1],6:ncol(pts$marks)]),
+	                  as.numeric(pts$marks[x[2],6:ncol(pts$marks)]))
+
+ # seln <- sample(1:2,(ncol(pts$marks)-5)*num.children,replace=T)
+
+	res[,8:ncol(res)] <- t(replicate(num.children, palleles[cbind(seq(nrow(palleles)), sample(1:2, nrow(palleles), replace=TRUE))]))
+
 	res
 }
 #' Breed valid individuals
@@ -199,9 +193,13 @@ breed <- function(pts,b.pairs,b.table)
 	}
 	if (is.null(kids)) return(NULL)  # Failed to breed
 
+	# Update all kids age and ids
+
 	kids[,5] <- 0 # age
 	kids[,3] <- 0 # set id as 0 - updated in multi-step
+
 	kids.marks <- as.data.frame(kids[,3:ncol(kids)])
+
 	if (ncol(kids.marks)==1) kids.marks <- t(kids.marks)  # hack for R
 
 	ppp(x=kids[,1],y=kids[,2],

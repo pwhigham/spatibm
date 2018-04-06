@@ -46,8 +46,8 @@ allele.fixation <- function(pop)
 
   if (pop$n==0) return(TRUE)
 
-  sum.alleles <- sum(unlist(pop$marks[,(ncol(pop$marks)-1):ncol(pop$marks)]))
-	if (sum.alleles==(2*pop$n)) return(TRUE)  # all 1's
+  sum.alleles <- sum(unlist(pop$marks[,6:ncol(pop$marks)]))
+	if (sum.alleles==(2*pop$n*(ncol(pop$marks)-5)/2)) return(TRUE)  # all 1's
 	if (sum.alleles==0) return(TRUE)  # all 0's
 
 	FALSE  # mixed
@@ -75,7 +75,7 @@ allele.fixation <- function(pop)
 #' @return This function will complete when: (a) The alleles have fixed; (b) The maximum number
 #' of generations has been reached; or (c) The population has died out. To allow a simple
 #' method for distinguishing each of these cases, the model returns a 6 element numeric vector: <TRUE/FALSE fixed>,
-#' <generation>, <Final Population Count>, <Last Allele Sum> <#Males>,<#Females>.
+#' <generation>, <Final Population Count>, <Allele Sum> <#Males>,<#Females>.
 
 fixation <- function(max.gens=100,
                              curr.pop,
@@ -90,7 +90,7 @@ fixation <- function(max.gens=100,
 {
   if (trace.output)
   {
-    alleles <- unlist(curr.pop$marks[,(ncol(curr.pop$marks)-1):ncol(curr.pop$marks)])
+    alleles <- unlist(curr.pop$marks[,6:ncol(curr.pop$marks)])
     cat(paste("Gen: 0"," N=",curr.pop$n," A:",sum(alleles),"..",sep=""))
     flush.console();
   }
@@ -119,7 +119,7 @@ fixation <- function(max.gens=100,
 
 		gen <- gen + 1
 	}
-	alleles <- unlist(curr.pop$marks[,(ncol(curr.pop$marks)-1):ncol(curr.pop$marks)])
+	alleles <- unlist(curr.pop$marks[,6:ncol(curr.pop$marks)])
 
 	c(fixed,gen,curr.pop$n, sum(alleles), length(which(curr.pop$marks$sex==1)),
 	  length(which(curr.pop$marks$sex==2)))
