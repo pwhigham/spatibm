@@ -66,12 +66,12 @@ baseline.breeding <- function(p,b.table)
 	if (length(males) > 0)
 	{
     i <- cut(p$marks$age[males],breaks=b.table[[1]],include.lowest=TRUE)
-    breed.surv[males] <- b.table[[2]][i]
+    breed.surv[males] <- unlist(b.table[[2]][i])
 	}
 	if (length(females) > 0)
 	{
 	  i <- cut(p$marks$age[females],breaks=b.table[[3]],include.lowest=TRUE)
-	  breed.surv[females] <- b.table[[4]][i]
+	  breed.surv[females] <- unlist(b.table[[4]][i])
 	}
 	p[(runif(p$n) < breed.surv),]
 }

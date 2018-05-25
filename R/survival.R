@@ -57,12 +57,12 @@ baseline.survival <- function(p,s.table,habitat=NA)
 	if (length(males) > 0)
 	{
 	  i <- cut(p$marks$age[males],breaks=s.table[[1]],include.lowest=TRUE)
-	  age.surv[males] <- s.table[[2]][i]
+	  age.surv[males] <- unlist(s.table[[2]][i])
 	}
 	if (length(females) > 0)
 	{
 	  i <- cut(p$marks$age[females],breaks=s.table[[3]],include.lowest=TRUE)
-	  age.surv[females] <- s.table[[4]][i]
+	  age.surv[females] <- unlist(s.table[[4]][i])
 	}
 
 		# and now do the habitat surface
