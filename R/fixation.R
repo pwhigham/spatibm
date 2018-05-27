@@ -151,9 +151,7 @@ fixation <- function(max.gens=200,
 #' @param move.table Movement table as defined by \code{movement.table}.
 #' @param survive.table Survival table as defined by \code{survival.table}.
 #' @param breed.table Breeding table as defined by \code{breeding.table}
-#' @param habitat.surface The habitat (probability) surface. See \code{circle.habitat} for an example, although
-#' this surface could be produced in many ways.  The only requirement is that it must cover the entire window
-#' associated with the population.
+#' @param habitat.list The list of habitats (probability) surfaces with associated N(m,sd).
 #' @param crowd.table The crowding table as defined by \code{crowding.table}
 #' @param crowding.sigma Bandwidth used for density calculation for crowding
 #' @param max.dist Maximum distance between breeding parents
@@ -170,7 +168,7 @@ popsize.survival <- function(pop.sizes=10:20,steps=20,samples=2,
                              move.table,
                              survive.table,  # Behaviour parameters
                              breed.table,
-                             habitat.surface,
+                             habitat.list=NA,
                              crowd.table,
                              crowding.sigma,
                              max.dist,
@@ -196,19 +194,37 @@ popsize.survival <- function(pop.sizes=10:20,steps=20,samples=2,
       #
       pop$window <- habitat.win
       #
-      # And run the model for 40 steps (41 including initial population)
       #
-      pop.series <- multiple.step(steps,
+      if (length(unlist(habitat.list)) < 2) # No habitat list
+      {
+          pop.series <- multiple.step(steps,
                                   curr.pop=pop,
                                   move.table,
                                   survive.table,
                                   breed.table,
-                                  habitat.surface,
+                                  habitat.list,
                                   crowd.table,
                                   crowding.sigma=crowding.sigma,
                                   max.dist,
                                   track.ids=FALSE,
                                   trace.output=FALSE)
+      }
+      else # Got a list of habitats...
+      {
+        pop.series <- multiple.step.habitat(steps,
+                                            curr.pop=pop,
+                                            move.table,
+                                            survive.table,
+                                            breed.table,
+                                            habitat.list,
+                                            crowd.table,
+                                            crowding.sigma=crowding.sigma,
+                                            max.dist,
+                                            track.ids=FALSE,
+                                            trace.output=FALSE)
+
+
+      }
       res[index,] <- c(pop.series[[1]]$n,pop.series[[(steps+1)]]$n)
       index <- index + 1
     }
