@@ -4,8 +4,8 @@
 \alias{plot.survival}
 \title{Create plot showing probability of survival over time}
 \usage{
-\method{plot}{survival}(p.seq = seq(from = 1, to = 0.5, by = -0.05),
-  years = 1:40, ylim = c(0, 1), cex = 1, ...)
+plot.survival(p.seq = seq(from = 1, to = 0.5, by = -0.05), years = 1:40,
+  ylim = c(0, 1), cex = 1, ...)
 }
 \arguments{
 \item{p.seq}{Vector sequence of probabilities}

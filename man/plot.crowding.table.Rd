@@ -4,7 +4,7 @@
 \alias{plot.crowding.table}
 \title{Plot the crowding table}
 \usage{
-\method{plot}{crowding.table}(c.t, sex = 1, ...)
+plot.crowding.table(c.t, sex = 1, ...)
 }
 \arguments{
 \item{c.t}{Defined crowding table from \code{crowding.table}.}

@@ -4,8 +4,7 @@
 \alias{plot.all.gens}
 \title{Plot all generations of a model as points}
 \usage{
-\method{plot}{all.gens}(p.list, xlim = NA, ylim = NA, cex = 0.7,
-  pch = 16, ...)
+plot.all.gens(p.list, xlim = NA, ylim = NA, cex = 0.7, pch = 16, ...)
 }
 \arguments{
 \item{p.list}{List of populations as .ppp, probably produced by running a model.}

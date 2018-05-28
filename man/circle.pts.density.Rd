@@ -4,7 +4,7 @@
 \alias{circle.pts.density}
 \title{Define a set of circular point habitats}
 \usage{
-circle.pts.density(x, y, hab.win, sigma = 1, min.d = 0.7)
+circle.pts.density(x, y, hab.win, min.d = 0.7, ...)
 }
 \arguments{
 \item{x}{x coordinates defining the point locations}
@@ -13,9 +13,9 @@ circle.pts.density(x, y, hab.win, sigma = 1, min.d = 0.7)
 
 \item{hab.win}{The habitat window as an owin object}
 
-\item{sigma}{Density function argument.  Larger values produce greater spread}
-
 \item{min.d}{Minimum value of final habitat map.}
+
+\item{...}{Additional arguments to density.ppp}
 }
 \value{
 Habitat value for each location as an im object (\code{\link[spatstat]{as.im}}).
@@ -33,8 +33,8 @@ hab.win <- owin(c(-50,50),c(-50,50),unitname="metres")
 Use 3 point locations within the -50x50 window
 x = c(-20,0,20)
 y = c(-20,0,20)
-# Note that Z is type im.
-Z <- circle.pts.density(x,y,hab.win,sigma=5,min.d=0.7)
+# Note that Z is type im, and sigma,edge are arguments to the density.ppp function.
+Z <- circle.pts.density(x,y,hab.win,min.d=0.7,sigma=2,edge=FALSE)
 plot(Z)
 
 }

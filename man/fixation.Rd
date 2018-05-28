@@ -5,8 +5,8 @@
 \title{Time to fixation for an spatial individual-based model}
 \usage{
 fixation(max.gens = 200, curr.pop, move.table, survive.table, breed.table,
-  habitat.surface = NA, crowd.table = NA, crowding.sigma = 0,
-  max.dist = 5, trace.output = FALSE)
+  habitat.list, crowd.table = NA, crowding.sigma = 0, max.dist = 5,
+  trace.output = FALSE)
 }
 \arguments{
 \item{max.gens}{Maximum number of generations before the simulation halts.}
@@ -19,9 +19,7 @@ fixation(max.gens = 200, curr.pop, move.table, survive.table, breed.table,
 
 \item{breed.table}{Breeding table as defined by \code{breeding.table}}
 
-\item{habitat.surface}{The habitat (probability) surface. See \code{circle.habitat} for an example, although
-this surface could be produced in many ways.  The only requirement is that it must cover the entire window
-associated with the population.}
+\item{habitat.list}{The list of habitats (probability) surfaces with associated N(m,sd).}
 
 \item{crowd.table}{The crowding table as defined by \code{crowding.table}}
 

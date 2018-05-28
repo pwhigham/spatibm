@@ -63,9 +63,7 @@ allele.fixation <- function(pop)
 #' @param move.table Movement table as defined by \code{movement.table}.
 #' @param survive.table Survival table as defined by \code{survival.table}.
 #' @param breed.table Breeding table as defined by \code{breeding.table}
-#' @param habitat.surface The habitat (probability) surface. See \code{circle.habitat} for an example, although
-#' this surface could be produced in many ways.  The only requirement is that it must cover the entire window
-#' associated with the population.
+#' @param habitat.list The list of habitats (probability) surfaces with associated N(m,sd).
 #' @param crowd.table The crowding table as defined by \code{crowding.table}
 #' @param crowding.sigma Bandwidth used for density calculation for crowding
 #' @param max.dist Maximum distance between breeding parents
@@ -81,12 +79,16 @@ fixation <- function(max.gens=200,
                              move.table,
                              survive.table,
                              breed.table,
-                             habitat.surface=NA,
+                             habitat.list,
                              crowd.table=NA,
                              crowding.sigma=0.0,
                              max.dist=5.0,
                              trace.output=FALSE)
 {
+
+  if (class(habitat.list)!="list") stop("Habitat list must be a list")
+  if (class(habitat.list[[1]])!="list") stop("Habitat list must be a list of lists")
+
   if (trace.output)
   {
     alleles <- unlist(curr.pop$marks[,6:ncol(curr.pop$marks)])
@@ -95,6 +97,16 @@ fixation <- function(max.gens=200,
   }
 	fixed <- allele.fixation(pop)
 	gen <- 1
+
+	# Deal with the habitat list...
+
+	curr.habitat.list <- habitat.list[[1]]
+	curr.timestep <- 0 # Number of timesteps using current habitat
+	curr.habitat <- 1  # Index into the habitat list
+	habitat.surface <- curr.habitat.list[[1]]  # The habitat surface
+	habitat.maxtime <- ceiling(rnorm(1,curr.habitat.list[[2]],curr.habitat.list[[3]])) # Time
+
+
 	while(!fixed)
 	{
 		curr.pop <- single.step(curr.pop,
@@ -117,6 +129,19 @@ fixation <- function(max.gens=200,
 		if ((curr.pop$n==0) | (gen > max.gens) | fixed) break  # Done
 
 		gen <- gen + 1
+
+		# and check about habitat surface change...
+		curr.timestep <- curr.timestep + 1
+		if (curr.timestep >= habitat.maxtime)  # Time to change...
+		{
+		  curr.habitat <- curr.habitat + 1
+		  if (curr.habitat > length(habitat.list)) curr.habitat <- 1
+		  curr.habitat.list <- habitat.list[[curr.habitat]]
+		  curr.timestep <- 0 # Number of timesteps using current habitat
+		  habitat.surface <- curr.habitat.list[[1]]  # The habitat surface
+		  habitat.maxtime <- ceiling(rnorm(1,curr.habitat.list[[2]],curr.habitat.list[[3]])) # Time
+		}
+
 	}
 	alleles <- unlist(curr.pop$marks[,6:ncol(curr.pop$marks)])
 

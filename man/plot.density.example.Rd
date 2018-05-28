@@ -4,7 +4,7 @@
 \alias{plot.density.example}
 \title{Density plot for a given number of points and bandwidth}
 \usage{
-\method{plot}{density.example}(win, num.pts = 20, sigma = 1)
+plot.density.example(win, num.pts = 20, sigma = 1)
 }
 \arguments{
 \item{win}{Spatial window}

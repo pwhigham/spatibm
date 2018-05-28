@@ -45,11 +45,11 @@ This vignette covers some example approaches to using the <i>spatibm</i> package
 
 ## Modelling Fixation of a neutral allele
 
-Modelling of neutral alleles in a population allows a measure of inbreeding and loss of diversity.  For the <i>spatibm<\i> package this is influenced by the breeding, survival, fecundity and the structure of the habitat and spatial density of individuals.  A function has been provided that,given an initial population, runs a population until diversity is lost within the population, or a set number of generations has been reached.  Multiple runs of this function allow a confidence interval for fixation to be produced. The default definitions for movement, etc. provided with <i>create.ibm.population</i> will be used to simplify this description. A single rare allele with initial proportion 0.01 will be used to ensure fixation is reasonably quick.
+Modelling of neutral alleles in a population allows a measure of inbreeding and loss of diversity.  For the <i>spatibm<\i> package this is influenced by the breeding, survival, fecundity and the structure of the habitat and spatial density of individuals.  A function has been provided that,given an initial population, runs a population until diversity is lost within the population, or a set number of generations has been reached.  Multiple runs of this function allow a confidence interval for fixation to be produced. The default definitions for movement, etc. provided with <i>create.ibm.population</i> will be used to simplify this description. A single rare allele with initial proportion 0.05 will be used to ensure fixation is reasonably quick.
 
 ```{r,fixsetup,echol=TRUE}
 obs.win <- owin(xrange=c(-30,30),yrange=c(-30,30),unitname="metres")
-allele.prop <- 0.05  # Make one rare allele (one locus, 2 alleles)
+allele.prop <- c(0.05)  # Make one rare allele (one locus, 2 alleles)
 pop <- create.ibm.population(N=20,
                               spat.layout="random",
                               obs.win,
@@ -61,17 +61,19 @@ pop <- create.ibm.population(N=20,
 #
 pop$window <- owin(xrange=c(-100,100), yrange=c(-100,100),unitname="metres")
 hab.surface <- as.im(circle.habitat,pop$window,b=0.0001)
+hab.list <- list(list(hab.surface,Inf,0)) # Just the one surface
 breed.table <- breeding.table() # default values
 survive.table <- survival.table() # default values
 move.table <- movement.table() # default values
 max.dist <- 10.0 # Breeding occurs for parents within 10 mtrs
+
 
 fixed <- fixation(max.gens=30,
                   pop,
                   move.table,
                   survive.table,
                   breed.table,
-                  habitat.surface=hab.surface, # stop overpopulation
+                  habitat.list=hab.list, # stop overpopulation
                   crowd.table=NA, # No density dependence for survival
                   crowding.sigma=0.0,
                   max.dist=max.dist,
@@ -79,7 +81,7 @@ fixed <- fixation(max.gens=30,
 
 fixed
 ```
-The result of a single call to <i>fixation</i> is a six element vector, showing True/False for fixation, the generation it occurred, the population count at the time of fixation, the sum of alleles, the number of males in the population, and the number of females.  This is required to distinguish fixation due to the loss of the population (population count = 0),halting because the maximum number of generations has been reached, and halting because there are no viable breeding pairs (i.e. loss of diversity of males/females). Note that the sum of alleles is a measure of the remaining diversity if the population has not fixed. For a fixed population this will either be zero (all loci fixed at zero), or [num of loci*popsize] when all loci are fixed at one. Probability of fixation requires this model to be run repeatedly, and with max.gens set typically quite high; normally for a range of population sizes.  This is best done as a script run (probably) overnight, and saving the results to a file each time the model is run.
+The result of a single call to <i>fixation</i> is a six element vector, showing True/False for fixation, the generation it occurred, the population count at the time of fixation, the sum of alleles, the number of males in the population, and the number of females.  This is required to distinguish fixation due to the loss of the population (population count = 0), halting because the maximum number of generations has been reached, and halting because there are no viable breeding pairs (i.e. loss of diversity of males/females). Note that the sum of alleles is a measure of the remaining diversity if the population has not fixed. For a fixed population this will either be zero (all loci fixed at zero), or [num of loci*popsize] when all loci are fixed at one. Probability of fixation requires this model to be run repeatedly, and with max.gens set typically quite high; normally for a range of population sizes.  This is best done as a script run (probably) overnight, and saving the results to a file each time the model is run.
 
 
 ## Modelling a bottleneck 
@@ -128,17 +130,26 @@ An important question to ask is what is a viable intial population size? One way
 
 ```{r,popviable,echol=TRUE,fig.width=6.0,fig.height=3}
 
-surv <- popsize.survival(pop.sizes=10:30,steps=20,samples=10,
+# Show use of competitive release habitat 
+# circular habitat for competitive release stage
+CRhabitat.surface <- as.im(circle.habitat,hab.win,b=0.0001) 
+# circular habitat 'normal level'
+habitat.surface <- as.im(circle.habitat,hab.win,b=0.0002) 
+
+hab.list <- list(list(CRhabitat.surface,25,0),
+                 list(habitat.surface,Inf,0))
+
+surv <- popsize.survival(pop.sizes=10:30,steps=40,samples=5,
                              spat.layout="random",
                              obs.win,
                              prob.females=0.5, # Initial pop parameters
                              age.distribution=c(5,3),
                              allele.prop=c(0.5),
-                             habitat.win=hab.win,
+                             habitat.win=hab.win, 
                              move.table,
                              survive.table,  # Behaviour parameters
                              breed.table,
-                             habitat.surface=NA,
+                             habitat.list=hab.list, # Multiple habitats
                              crowd.table=NA,
                              crowding.sigma=0.0,
                              max.dist=10.0,

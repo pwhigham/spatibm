@@ -10,6 +10,9 @@ model.summary(p.list, sigma = 1, file.csv = NA)
 \item{p.list}{A list of point populations (.ppp)}
 
 \item{sigma}{Bandwidth used for calculating density for each generation}
+
+\item{file.csv}{A file name as a string or NA.  If not NA, then a csv file using
+this name is created.}
 }
 \value{
 A dataframe, one row per generation, showing summary statistics for the population.

@@ -5,8 +5,8 @@
 \title{Perform multiple steps (generations) for the population}
 \usage{
 multiple.step(steps = 10, curr.pop, move.table, survive.table, breed.table,
-  habitat.surface = NA, crowd.table, crowding.sigma = 1, max.dist = 5,
-  track.ids = FALSE, trace.output = TRUE)
+  habitat.surface = NA, crowd.table = NA, crowding.sigma = 0,
+  max.dist = 5, track.ids = FALSE, trace.output = TRUE)
 }
 \arguments{
 \item{steps}{Number of steps (generations) to excute the model}

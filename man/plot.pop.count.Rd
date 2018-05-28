@@ -4,7 +4,7 @@
 \alias{plot.pop.count}
 \title{Plot total population}
 \usage{
-\method{plot}{pop.count}(p.list)
+plot.pop.count(p.list)
 }
 \arguments{
 \item{p.list}{List of populations created by running a model.}

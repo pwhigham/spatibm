@@ -4,9 +4,9 @@
 \alias{plot.population.graph}
 \title{Plot the population as a family tree}
 \usage{
-\method{plot}{population.graph}(g, pop.series, tree.layout = NA,
-  vertex.height = 0.02, vertex.width = 0.04, edge.width = rep(0.02,
-  length(E(g))), edge.arrow.size = 0.35, edge.curved = TRUE, ...)
+plot.population.graph(g, pop.series, tree.layout = NA, vertex.height = 0.02,
+  vertex.width = 0.04, edge.width = rep(0.02, length(E(g))),
+  edge.arrow.size = 0.35, edge.curved = TRUE, ...)
 }
 \arguments{
 \item{g}{igraph created using \code{build.population.graph}.}

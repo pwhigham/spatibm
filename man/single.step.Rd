@@ -5,7 +5,7 @@
 \title{Perform a single (generation) step for the population}
 \usage{
 single.step(curr.pop, move.table, survive.table, breed.table, habitat.surface,
-  crowd.table, crowding.sigma = 1, max.dist = 5)
+  crowd.table = NA, crowding.sigma = 0, max.dist = 5)
 }
 \arguments{
 \item{curr.pop}{The current population as a .ppp}
@@ -20,9 +20,9 @@ single.step(curr.pop, move.table, survive.table, breed.table, habitat.surface,
 this surface could be produced in many ways.  The only requirement is that it must cover the entire window
 associated with the population.}
 
-\item{crowd.table}{The crowding table as defined by \code{crowding.table}}
+\item{crowd.table}{The crowding table as defined by \code{crowding.table}.  May be NA for no crowding.}
 
-\item{crowding.sigma}{Bandwidth used for density calculation for crowding}
+\item{crowding.sigma}{Bandwidth used for density calculation for crowding.  Value of 0.0 indicates no crowding.}
 
 \item{max.dist}{Maximum distance between breeding parents}
 }
